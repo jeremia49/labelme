@@ -123,5 +123,5 @@ shortcuts:
   hide_all_polygons: null
   toggle_all_polygons: T
   
-  flag_1: 1
-  flag_2: 2
+  flag_1: b
+  flag_2: n
