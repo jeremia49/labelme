@@ -205,6 +205,20 @@ class MainWindow(QtWidgets.QMainWindow):
         # Actions
         action = functools.partial(utils.newAction, self)
         shortcuts = self._config["shortcuts"]
+        setFlag1 = action(
+            "Set Flag 1",
+            functools.partial(self.toggleTrueFlag, 0),
+            shortcuts["flag_1"],
+            "labels",
+            "Set Flag 1",
+        )
+        setFlag2 = action(
+            "Set Flag 2",
+            functools.partial(self.toggleTrueFlag, 1),
+            shortcuts["flag_2"],
+            "labels",
+            "Set Flag 2",
+        )
         quit = action(
             self.tr("&Quit"),
             self.close,
@@ -656,6 +670,10 @@ class MainWindow(QtWidgets.QMainWindow):
             openPrevImg=openPrevImg,
             fileMenuActions=(open_, opendir, save, saveAs, close, quit),
             tool=(),
+
+            setFlag1=setFlag1,
+            setFlag2=setFlag2,
+
             # XXX: need to add some actions here to activate the shortcut
             editMenu=(
                 edit,
@@ -690,6 +708,10 @@ class MainWindow(QtWidgets.QMainWindow):
                 undo,
                 undoLastPoint,
                 removePoint,
+
+                setFlag1,
+                setFlag2,
+
             ),
             onLoadActive=(
                 close,
@@ -703,6 +725,10 @@ class MainWindow(QtWidgets.QMainWindow):
                 createAiMaskMode,
                 editMode,
                 brightnessContrast,
+                
+                setFlag1,
+                setFlag2,
+                
             ),
             onShapesPresent=(saveAs, hideAll, showAll, toggleAll),
         )
@@ -825,6 +851,9 @@ class MainWindow(QtWidgets.QMainWindow):
             zoom,
             None,
             selectAiModel,
+            None,
+            setFlag1,
+            setFlag2,
         )
 
         self.statusBar().showMessage(str(self.tr("%s started.")) % __appname__)
@@ -1290,6 +1319,23 @@ class MainWindow(QtWidgets.QMainWindow):
             item.setCheckState(Qt.Checked if flag else Qt.Unchecked)
             self.flag_widget.addItem(item)
 
+    def toggleTrueFlag(self, index):
+        flags = {}
+        for i in range(self.flag_widget.count()):
+            item = self.flag_widget.item(i)
+            key = item.text()
+            flag = item.checkState() == Qt.Checked
+            flags[key] = flag
+        self.flag_widget.clear()
+        i = 0
+        for key, flag in flags.items():
+            item = QtWidgets.QListWidgetItem(key)
+            item.setFlags(item.flags() | Qt.ItemIsUserCheckable)
+            item.setCheckState(Qt.Checked if i==index else Qt.Unchecked)
+            i += 1
+            self.flag_widget.addItem(item)
+        self.setDirty()
+    
     def saveLabels(self, filename):
         lf = LabelFile()
 
